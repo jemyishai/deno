@@ -1,3 +1,5 @@
+import { Application, Router } from "https://deno.land/x/oak/mod.ts";
+
 interface Dog {
   name: string;
   age: number;
@@ -14,29 +16,12 @@ let dogs: Array<Dog> = [
   },
 ];
 
-import { Application, Router } from "https://deno.land/x/oak/mod.ts";
-
-const env = Deno.env.toObject();
-const PORT = env.PORT || 4000;
-const HOST = env.HOST || "127.0.0.1";
-
-const router = new Router();
-
-const app = new Application();
-
-app.use(router.routes());
-app.use(router.allowedMethods());
-
-console.log(`Listening on port ${PORT}...`);
-
-await app.listen(`${HOST}:${PORT}`);
-
 const getDogs = ({ response }: { response: any }) => {
   response.status = 200;
   response.body = dogs;
 };
 
-export const getDog = ({
+const getDog = ({
   params,
   response,
 }: {
@@ -56,9 +41,24 @@ export const getDog = ({
   response.body = { msg: `Cannot find dog ${params.name}` };
 };
 
+const env = Deno.env.toObject();
+const PORT = env.PORT || 4000;
+const HOST = env.HOST || "127.0.0.1";
+
+const router = new Router();
+
+const app = new Application();
+
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+console.log(`Listening on port ${PORT}...`);
+
 router
   .get("/dogs", getDogs)
   .get("/dogs/:name", getDog);
 // .post('/dogs', addDog)
 // .put('/dogs/:name', updateDog)
 // .delete('/dogs/:name', removeDog)
+
+await app.listen(`${HOST}:${PORT}`);
