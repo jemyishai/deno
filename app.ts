@@ -41,6 +41,42 @@ const getDog = ({
   response.body = { msg: `Cannot find dog ${params.name}` };
 };
 
+export const removeDog = ({
+  params,
+  response,
+}: {
+  params: {
+    name: string
+  }
+  response: any
+}) => {
+  const lengthBefore = dogs.length
+  dogs = dogs.filter((dog) => dog.name !== params.name)
+
+  if (dogs.length === lengthBefore) {
+    response.status = 400
+    response.body = { msg: `Cannot find dog ${params.name}` }
+    return
+  }
+
+  response.body = { msg: 'OK' }
+  response.status = 200
+}
+
+export const addDog = async ({
+  request,
+  response,
+}: {
+  request: any
+  response: any
+}) => {
+  const body = await request.body()
+  const dog: Dog = body.value
+  dogs.push(dog)
+  response.body = { msg: 'OK' }
+  response.status = 200
+}
+
 const env = Deno.env.toObject();
 const PORT = env.PORT || 4000;
 const HOST = env.HOST || "127.0.0.1";
@@ -56,9 +92,9 @@ console.log(`Listening on port ${PORT}...`);
 
 router
   .get("/dogs", getDogs)
-  .get("/dogs/:name", getDog);
-// .post('/dogs', addDog)
+  .get("/dogs/:name", getDog)
+  .post('/dogs', addDog)
 // .put('/dogs/:name', updateDog)
-// .delete('/dogs/:name', removeDog)
+  .delete('/dogs/:name', removeDog)
 
 await app.listen(`${HOST}:${PORT}`);
